@@ -1,0 +1,151 @@
+version: '3.9'
+
+services:
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build: compose/nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - wsgiserver
+      - asgiserver
+    networks:
+      citelink-network:
+
+  wsgiserver:
+    build:
+      context: .
+      dockerfile: compose/local/django/Dockerfile
+    container_name: wsgiserver
+    restart: always
+    command: gunicorn notifications_system.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120
+    env_file:
+      - .env
+    volumes:
+      - ./notifications_system:/app
+    depends_on:
+      - db-citelink
+      - redis
+    ports:
+      - 8000:8000
+    networks:
+      citelink-network:
+
+  asgiserver:
+      build:
+        context: .
+        dockerfile: compose/local/django/Dockerfile
+      container_name: asgiserver
+      restart: always
+      command: daphne notifications_system.asgi:application -b 0.0.0.0 -p 9000
+      env_file:
+        - .env
+      volumes:
+        - ./notifications_system:/app
+      depends_on:
+        - db-citelink
+        - redis
+      ports:
+        - 9000:9000
+      networks:
+        citelink-network:
+
+#  notifications_system:
+#    container_name: notifications_system
+#    build:
+#      context: .
+#      dockerfile: compose/local/django/Dockerfile
+#    restart: always
+#    command: /start # /start-prod
+#    volumes:
+#      - ./notifications_system:/app
+#    ports:
+#      - ${DJANGO_PORT}:${DJANGO_PORT}
+#    env_file:
+#      - .env
+#    depends_on:
+#      - db-citelink
+#      - redis
+#    networks:
+#      citelink-network:
+#    stdin_open: true
+#    tty: true
+
+  db-citelink:
+    container_name: citelink-database
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    volumes:
+      - postgresql_citelink:/var/lib/postgresql/data
+    networks:
+      citelink-network:
+
+  redis:
+    container_name: redis
+    image: redis:7.2.5-alpine
+    restart: unless-stopped
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - redis_data:/root/redis
+      - redis.conf:/usr/local/etc/redis/redis.conf
+    env_file:
+      - .env
+    networks:
+      citelink-network:
+
+  celery:
+    container_name: celery
+    restart: always
+    build:
+      context: .
+      dockerfile: compose/local/django/Dockerfile
+    command: /start-celeryworker
+    volumes:
+      - ./notifications_system:/app
+    env_file:
+      - .env
+    depends_on:
+      - db-citelink
+      - redis
+      #- notifications_system
+    networks:
+      citelink-network:
+
+  celery-beat:
+    container_name: celery-beat
+    restart: always
+    build:
+      context: .
+      dockerfile: compose/local/django/Dockerfile
+    command: /start-celerybeat
+    env_file:
+      - .env
+    volumes:
+      - ./notifications_system:/app
+    depends_on:
+      - db-citelink
+      - redis
+      #- notifications_system
+      - celery
+    networks:
+      citelink-network:
+
+volumes:
+  notifications_system:
+  postgresql_citelink:
+  redis_data:
+  redis.conf:
+
+networks:
+  citelink-network:
