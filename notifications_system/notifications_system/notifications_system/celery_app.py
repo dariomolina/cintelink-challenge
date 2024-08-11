@@ -17,11 +17,3 @@ app.conf.update(
 )
 app.config_from_object(settings, namespace='CELERY')
 app.autodiscover_tasks()
-
-
-# app.conf.beat_schedule = {
-#     'fetch-every-10-seconds': {
-#         'task': 'ticker.tasks.fetch_and_set_buenbit_data',
-#         'schedule': 10.0,  # Every 10 seconds
-#     },
-# }
