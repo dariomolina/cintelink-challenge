@@ -32,6 +32,8 @@ services:
       - 8000:8000
     networks:
       citelink-network:
+    stdin_open: true
+    tty: true
 
   asgiserver:
       build:
@@ -51,6 +53,8 @@ services:
         - 9000:9000
       networks:
         citelink-network:
+      stdin_open: true
+      tty: true
 
 #  notifications_system:
 #    container_name: notifications_system

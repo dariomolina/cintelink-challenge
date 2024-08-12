@@ -48,18 +48,55 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
-        message = data['message']
+        message_type = data.get('type')
+        if message_type == 'notification':
+            message = data['message']
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'notification_message',
+                    'message': message
+                }
+            )
+        elif message_type == 'read':
+            notification_id = data['notification_id']
 
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'notification_message',
-                'message': message
-            }
-        )
+            # TODO Handle the notification read update here
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'notification_read',
+                    'notification_id': notification_id
+                }
+            )
+
+    # async def receive(self, text_data=None, bytes_data=None):
+    #     data = json.loads(text_data)
+    #     message = data['message']
+    #
+    #     await self.channel_layer.group_send(
+    #         self.group_name,
+    #         {
+    #             'type': 'notification_message',
+    #             'message': message
+    #         }
+    #     )
 
     async def notification_message(self, event):
+        print(f"\n notification mesage --------------------------- {self.group_name}\n")
+        notification_id = event['notification_id']
         message = event['message']
+        timestamp = event['timestamp']
         await self.send(text_data=json.dumps({
-            'message': message
+            'notification_id': notification_id,
+            'message': message,
+            'timestamp': timestamp
+        }))
+
+    async def notification_read(self, event):
+        notification_id = event['notification_id']
+        await self.send(text_data=json.dumps({
+            'type': 'read',
+            'notification_id': notification_id
         }))
