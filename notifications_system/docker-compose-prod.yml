@@ -20,7 +20,7 @@ services:
       dockerfile: compose/local/django/Dockerfile
     container_name: wsgiserver
     restart: always
-    command: gunicorn notifications_system.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120
+    command: /start_wsgi
     env_file:
       - .env
     volumes:
@@ -32,6 +32,8 @@ services:
       - 8000:8000
     networks:
       citelink-network:
+    stdin_open: true
+    tty: true
 
   asgiserver:
       build:
@@ -45,33 +47,15 @@ services:
       volumes:
         - ./notifications_system:/app
       depends_on:
+        - wsgiserver
         - db-citelink
         - redis
       ports:
         - 9000:9000
       networks:
         citelink-network:
-
-#  notifications_system:
-#    container_name: notifications_system
-#    build:
-#      context: .
-#      dockerfile: compose/local/django/Dockerfile
-#    restart: always
-#    command: /start # /start-prod
-#    volumes:
-#      - ./notifications_system:/app
-#    ports:
-#      - ${DJANGO_PORT}:${DJANGO_PORT}
-#    env_file:
-#      - .env
-#    depends_on:
-#      - db-citelink
-#      - redis
-#    networks:
-#      citelink-network:
-#    stdin_open: true
-#    tty: true
+      stdin_open: true
+      tty: true
 
   db-citelink:
     container_name: citelink-database
@@ -101,43 +85,6 @@ services:
       - redis.conf:/usr/local/etc/redis/redis.conf
     env_file:
       - .env
-    networks:
-      citelink-network:
-
-  celery:
-    container_name: celery
-    restart: always
-    build:
-      context: .
-      dockerfile: compose/local/django/Dockerfile
-    command: /start-celeryworker
-    volumes:
-      - ./notifications_system:/app
-    env_file:
-      - .env
-    depends_on:
-      - db-citelink
-      - redis
-      #- notifications_system
-    networks:
-      citelink-network:
-
-  celery-beat:
-    container_name: celery-beat
-    restart: always
-    build:
-      context: .
-      dockerfile: compose/local/django/Dockerfile
-    command: /start-celerybeat
-    env_file:
-      - .env
-    volumes:
-      - ./notifications_system:/app
-    depends_on:
-      - db-citelink
-      - redis
-      #- notifications_system
-      - celery
     networks:
       citelink-network:
 

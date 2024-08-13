@@ -14,26 +14,10 @@ COPY ./requirements /requirements
 RUN python -m pip install --upgrade pip
 RUN pip install -r /requirements/local.txt
 
-COPY ./compose/local/django/start /start
-RUN sed -i 's/\r$//g' /start
-RUN chmod +x /start
-
-# copy entrypoint.sh
-COPY ./compose/local/database/entrypoint.sh /entrypoint.sh
-RUN sed -i 's/\r$//g' /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-COPY ./compose/local/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r$//g' /start-celeryworker
-RUN chmod +x /start-celeryworker
-
-COPY ./compose/local/django/celery/beat/start /start-celerybeat
-RUN sed -i 's/\r$//g' /start-celerybeat
-RUN chmod +x /start-celerybeat
+COPY ./compose/local/django/start_wsgi /start_wsgi
+RUN sed -i 's/\r$//g' /start_wsgi
+RUN chmod +x /start_wsgi
 
 WORKDIR /app
 
 EXPOSE 8000
-
-ENTRYPOINT ["/entrypoint.sh"]
-

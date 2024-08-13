@@ -57,5 +57,3 @@ CHANNEL_LAYERS = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# Redis configuration for Celery
-CELERY_BROKER_URL = REDIS_LOCATION
