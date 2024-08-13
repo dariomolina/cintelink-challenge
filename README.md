@@ -220,7 +220,8 @@ En el apartado "All Notifications" se listan todas las notificaciones que tiene 
 teniendo la posibilidad de marcar como leido
 y de eliminarlo (eso básicamente marca las notificaciones a nivel base de datos como leida y 
 borrada, pero el borrado es sólo de manera logica, dado que el registro segirá existiendo, 
-pero con el flag is_deleted=True)
+pero con el flag is_deleted=True). Ambos listados, marcado de notificación leida y elimianda 
+funciona usando websockets.
 
 
 
