@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: compose/local/django/Dockerfile
     restart: always
-    command: /start # /start-prod
+    command: /start_wsgi # /start_wsgi-prod
     volumes:
       - ./notifications_system:/app
     ports:
@@ -59,7 +59,7 @@ services:
     build:
       context: .
       dockerfile: compose/local/django/Dockerfile
-    command: /start-celeryworker
+    command: /start_wsgi-celeryworker
     volumes:
       - ./notifications_system:/app
     env_file:
@@ -77,7 +77,7 @@ services:
     build:
       context: .
       dockerfile: compose/local/django/Dockerfile
-    command: /start-celerybeat
+    command: /start_wsgi-celerybeat
     env_file:
       - .env
     volumes:
