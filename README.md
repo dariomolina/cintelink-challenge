@@ -153,7 +153,7 @@ Response:
 ```
 
 
-Para probar el websockert, se generó un pequeño front donde lo se lo puede desacargar en 
+Para probar el websocket, se generó un pequeño front donde se lo puede descargar en 
 https://github.com/dariomolina/citelink-client
 Buildeamos y levantamos el proyecto de front
 ```
@@ -162,7 +162,7 @@ $ docker-compose up
 ```
 
 
-* Debemos obtener el Token (access) para poder realizar conectarnos al websocket mediante el 
+* Debemos obtener el Token (access) para poder conectarnos al websocket mediante el 
 uso de la app demo de front con las credenciales de algun usuario registrado (en este caso se usa el usuario admin)
 ```
 POST http://localhost:8000/api/token/
@@ -181,12 +181,7 @@ Response:
 
 * con el TOKEN "access", nos dirijimos a la app demo de front citelink-client/ y lo asignamos 
 a la variable VITE_WS_TOKEN del archivo .env, ubicado en frontend/.env. Esto es para poder 
-conectarse al websocket desde la app demo de front
-
-Luego en htpp://localhost:3000 podemos observar, en el apartado de Notifications, cómo en tiempo real van apareciendo las notificaciones al momento de crear un registro de notificaciones en la db.
-En el apartado "All Notifications" se listan todas las notificaciones que tiene el user, teniendo la posibilidad de marcar como leido
-y de eliminarlo (eso básicamente marca las notificaciones a nivel base de datos como leida y borrada, pero el borrado es sólo de manera logica, dado que el registro segirá existiendo, pero con el flag is_deleted=True)
-
+generar la conexión al websocket mediante el token del user desde la app demo de front
 
 Luego de eso, podemos ingresar a postman y crear Notifications.
 Este endpoint creará y enviará notificaciones mediante django-channels a todos los users con el tag_id=1 
@@ -215,6 +210,7 @@ Response:
     "timestamp": "2024-08-13T14:46:38.346597Z"
 }
 ```
+
 Luego en htpp://localhost:3000 (servicio de front) podemos observar, en el apartado de 
 "Notifications", cómo en tiempo real van apareciendo las notificaciones al momento de crear 
 un nuevo registro de notificaciones en la db mediante el endpoint [ POST http://localhost:8000/api/notifications/ ]
