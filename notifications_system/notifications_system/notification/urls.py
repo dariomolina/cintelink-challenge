@@ -1,5 +1,4 @@
 from rest_framework.routers import DefaultRouter
-
 from notification.views import NotificationViewSet, TagViewSet, NotificationSubscriptionViewSet
 
 router = DefaultRouter()
