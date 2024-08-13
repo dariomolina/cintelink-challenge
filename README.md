@@ -232,3 +232,4 @@ pero con el flag is_deleted=True)
 * https://medium.com/@codealfi/building-a-real-time-chat-application-with-django-channels-and-redis-25395a9ffa81
 * https://channels.readthedocs.io/en/latest/topics/authentication.html
 * https://stackoverflow.com/questions/72775881/django-channels-unable-to-connectfind-websocket-after-docker-compose-of-projec
+* https://django-auditlog.readthedocs.io/en/latest/
