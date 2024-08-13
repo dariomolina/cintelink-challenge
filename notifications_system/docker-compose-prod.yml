@@ -57,27 +57,6 @@ services:
       stdin_open: true
       tty: true
 
-#  notifications_system:
-#    container_name: notifications_system
-#    build:
-#      context: .
-#      dockerfile: compose/local/django/Dockerfile
-#    restart: always
-#    command: /start_wsgi # /start_wsgi-prod
-#    volumes:
-#      - ./notifications_system:/app
-#    ports:
-#      - ${DJANGO_PORT}:${DJANGO_PORT}
-#    env_file:
-#      - .env
-#    depends_on:
-#      - db-citelink
-#      - redis
-#    networks:
-#      citelink-network:
-#    stdin_open: true
-#    tty: true
-
   db-citelink:
     container_name: citelink-database
     image: postgres:14

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'channels',
+    'auditlog',
 
     'notification'
 ]
@@ -109,6 +110,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    'auditlog.middleware.AuditlogMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
 

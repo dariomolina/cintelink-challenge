@@ -18,13 +18,6 @@ COPY ./compose/local/django/start_wsgi /start_wsgi
 RUN sed -i 's/\r$//g' /start_wsgi
 RUN chmod +x /start_wsgi
 
-# copy entrypoint.sh
-COPY ./compose/local/database/entrypoint.sh /entrypoint.sh
-RUN sed -i 's/\r$//g' /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 WORKDIR /app
 
 EXPOSE 8000
-
-ENTRYPOINT ["/entrypoint.sh"]

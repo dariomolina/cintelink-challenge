@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from auditlog.registry import auditlog
 
 
 class Tag(models.Model):
@@ -41,3 +42,9 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.notification.tag.name} - {self.is_read}"
+
+
+auditlog.register(Tag)
+auditlog.register(Notification)
+auditlog.register(NotificationSubscription)
+auditlog.register(UserNotification)
