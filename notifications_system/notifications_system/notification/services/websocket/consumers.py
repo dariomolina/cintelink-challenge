@@ -17,14 +17,29 @@ from notification.queryset import (
 
 
 class NotificationConsumerBase(AsyncWebsocketConsumer):
+    """
+    Base WebSocket consumer for handling notification-related operations.
+
+    Attributes:
+        user_id (int|None): The ID of the authenticated user.
+        group_name (str|None): The name of the WebSocket group associated with the user.
+    """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the NotificationConsumerBase with default attributes.
+        """
         super().__init__(*args, **kwargs)
         self.user_id = None
         self.group_name = None
 
     async def connect(self):
-        # Verificar si el usuario está autenticado
+        """
+        Handle the WebSocket connection.
+
+        Verifies the user's authentication via JWT token passed in the query string.
+        If authenticated, adds the user to a group for receiving notifications.
+        """
         query_string = self.scope['query_string'].decode()
         query_params = parse_qs(query_string)
         token = query_params.get('token', [None])[0]
@@ -36,7 +51,7 @@ class NotificationConsumerBase(AsyncWebsocketConsumer):
         try:
             decoded_token = UntypedToken(token)
             self.user_id = decoded_token['user_id']
-            # Si el token es válido, continúa con la conexión
+            # If the token is valid, continue with the connection
             user = await database_sync_to_async(User.objects.get)(id=self.user_id)
             self.scope['user'] = user
             self.group_name = f'notifications_{self.user_id}'
@@ -48,10 +63,15 @@ class NotificationConsumerBase(AsyncWebsocketConsumer):
             await self.accept()
 
         except (InvalidToken, TokenError):
-            # Si el token es inválido, cierra la conexión
+            # If the token is invalid, close the connection
             await self.close()
 
     async def disconnect(self, close_code):
+        """
+        Handle the WebSocket disconnection.
+
+        Removes the user from the notification group.
+        """
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
@@ -59,12 +79,33 @@ class NotificationConsumerBase(AsyncWebsocketConsumer):
 
 
 class NotificationConsumer(NotificationConsumerBase):
+    """
+    WebSocket consumer that handles receiving and processing notification-related messages.
+    Inherits from NotificationConsumerBase.
+
+    Methods:
+        receive: Handles incoming WebSocket messages and processes them based on the message type.
+        notification_message: Sends a notification message to the client.
+        notifications_list: Sends a list of notifications to the client.
+        notification_read: Sends a message indicating a notification has been read.
+        notification_delete: Sends a message indicating a notification has been deleted.
+    """
 
     async def receive(self, text_data=None, bytes_data=None):
+        """
+        Handle incoming WebSocket messages.
+
+        Processes different types of messages like retrieving notifications,
+        marking notifications as read, and marking notifications as deleted.
+
+        Args:
+            text_data (str): The JSON-encoded message received from the client.
+            bytes_data (bytes): Raw bytes received (not used here).
+        """
         data = json.loads(text_data)
         message_type = data.get('type')
 
-        # {"type": "notifications_list", "page": 1, "page_size": 5}
+        # Handle different message types
         if message_type == 'notifications_list':
             page = data.get('page', 1)
             page_size = data.get('page_size', 10)
@@ -78,7 +119,7 @@ class NotificationConsumer(NotificationConsumerBase):
             }))
         elif message_type == 'read':
             notification_id = data.get('id')
-            # Llama al servicio para marcar la notificación como leída
+            # Call the service to mark the notification as read
             await sync_to_async(mark_notification_as_read)(notification_id)
 
             await self.channel_layer.group_send(
@@ -90,7 +131,7 @@ class NotificationConsumer(NotificationConsumerBase):
             )
         elif message_type == 'deleted':
             notification_id = data.get('id')
-            # Llama al servicio para marcar la notificación como leída
+            # Call the service to mark the notification as deleted
             await sync_to_async(mark_notification_as_deleted)(notification_id)
 
             await self.channel_layer.group_send(
@@ -102,6 +143,12 @@ class NotificationConsumer(NotificationConsumerBase):
             )
 
     async def notification_message(self, event):
+        """
+        Send a notification message to the client.
+
+        Args:
+            event (dict): Event data containing the notification details.
+        """
         notification_id = event['id']
         message = event['message']
         timestamp = event['timestamp']
@@ -114,6 +161,12 @@ class NotificationConsumer(NotificationConsumerBase):
         }))
 
     async def notifications_list(self, event):
+        """
+        Send a list of notifications to the client.
+
+        Args:
+            event (dict): Event data containing the list of notifications.
+        """
         data = event['data']
         await self.send(text_data=json.dumps({
             'type': 'read',
@@ -121,6 +174,12 @@ class NotificationConsumer(NotificationConsumerBase):
         }))
 
     async def notification_read(self, event):
+        """
+        Send a message indicating a notification has been read.
+
+        Args:
+            event (dict): Event data containing the notification ID.
+        """
         notification_id = event['id']
         await self.send(text_data=json.dumps({
             'type': 'read',
@@ -128,6 +187,12 @@ class NotificationConsumer(NotificationConsumerBase):
         }))
 
     async def notification_delete(self, event):
+        """
+        Send a message indicating a notification has been deleted.
+
+        Args:
+            event (dict): Event data containing the notification ID.
+        """
         notification_id = event['id']
         await self.send(text_data=json.dumps({
             'type': 'delete',
