@@ -43,7 +43,7 @@ persistente, respectivamente.
 * Solo listamos las notificaciones no eliminadas.
 
 #### 4. Explicación del Diseño
-* Tag: Son etiquetas que se sirve para poder suscripcion de usuarios.
+* Tag: Son etiquetas que se sirve para definir el tipo de suscripcion del usuario y de acuerdo a eso, recibir las notificaciones correspondientes.
 * Notification: Almacena las notificaciones con un mensaje, un timestamp y una etiqueta.
 * NotificationSubscription: Relaciona usuarios con etiquetas (tags). Permite suscribirse 
 a notificaciones relacionadas con una etiqueta específica.
@@ -74,7 +74,7 @@ Se genera una tabla en la base de datos llamana LogEntries, con los siguientes c
 * User: El usuario que realizó la acción
 
 ### Dockerización
-Crea un Dockerfile para empaquetar la aplicación y un docker-compose.yml para orquestar los servicios, 
+Se crea un Dockerfile para empaquetar la aplicación y un docker-compose.yml para orquestar los servicios, 
 incluyendo la base de datos y Redis.
 
 ### Seguridad y Testing
