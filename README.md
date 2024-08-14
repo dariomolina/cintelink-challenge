@@ -82,15 +82,37 @@ incluyendo la base de datos y Redis.
 * Testing: Se generaron tests unitarios para testing de modelos, vistas y serializers 
 usando pytest en notificatio/tests.py.
 
+### Construir y levantar los servicios 
+```
+$ docker-compose -f docker-compose-prod.yml build
+$ docker-compose -f docker-compose-prod.yml up
+```
+
 ### Websocket
 La url para el uso del websocket es:
 
 ws://127.0.0.1:9000/ws/notifications/?token={USER_TOKEN}
 
-Y podemos usar postman para obtener un listado de notificaciones del user 
-* lista de notificaciones
-{"type": "notifications_list", "page": 1, "page_size": 5}
+Y podemos usar postman para realizar peticiones mediante websockets
 
+* mensaje para obtener lista de notificaciones
+{
+    "type": "notifications_list",
+    "page": 1,
+    "page_size": 5
+}
+
+* mensaje para marcar la notificación de usuario como leida
+{
+    'type': 'read',
+    'id': <user_notification_id>
+}
+
+* mensaje para marcar la notificación de usuario como eliminada
+{
+    'type': 'delete',
+    'id': <user_notification_id>
+}
 
 ### Endpoints
 
